@@ -21,12 +21,12 @@ app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER'] = 'smtp.163.com'
 app.config['MATL_PORT'] = 25
-app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USERNAME'] = '18310275531@163.com'
 app.config['MAIL_PASSWORD'] = 'libing521'
-# app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[Flasky]'
-# app.config['FLASKY_MAIL_SENDER'] = 'Flasky Admin <18310275531@163.com.com>'
-# app.config['FLASKY_ADMIN'] = os.environ.get('FLASKY_ADMIN')
+app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[Flasky]'
+app.config['FLASKY_MAIL_SENDER'] = 'Flasky Admin <18310275531@163.com>'
+app.config['FLASKY_ADMIN'] = '18310275531@163.com'
 
 
 
@@ -58,7 +58,7 @@ class User(db.Model) :
 
 
 def send_email(to,subject,template,**kwargs) :
-    msg = Message(app,config['FLASKY_MAIL_SUBJECT_PREFIX'] + '' + subject,sender=app.config['FLASKY_MAIL_SENDER'],recipients=[to])
+    msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + ' '+ subject,sender=app.config['FLASKY_MAIL_SENDER'],recipients=[to])
     msg.body = render_template(template + '.txt', **kwargs)
     msg.html = render_template(template + '.html', **kwargs)
     mail.send(msg)
@@ -95,8 +95,8 @@ def index():
             user = User(username=form.name.data)
             db.session.add(user)
             session['known'] = False
-            # if app.config['FLASKY_ADMIN'] :
-               #  send_email(app.config['FLASKY_ADMIN'],'New User','mail/new_user',user=user)
+            if app.config['FLASKY_ADMIN'] :
+                send_email(app.config['FLASKY_ADMIN'],'New User','mail/new_user',user=user)
         else :
             session['known'] = True
         session['name'] = form.name.data
